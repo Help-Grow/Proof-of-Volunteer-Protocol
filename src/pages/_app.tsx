@@ -17,7 +17,8 @@ import {
 import { NotificationProvider } from "@web3uikit/core";
 import { ConfigProvider } from "antd-mobile";
 import enUS from "antd-mobile/es/locales/en-US";
-
+import { bindings as wagmiBindings } from "@lens-protocol/wagmi";
+import { staging, LensProvider, LensConfig } from "@lens-protocol/react-web";
 const GLOBAL_STATE_KEY = "GLOBAL_STATE_KEY";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { InjectedConnector } from "wagmi/connectors/injected";
@@ -71,6 +72,11 @@ const client = createClient({
   webSocketProvider,
 });
 
+const lensConfig: LensConfig = {
+  bindings: wagmiBindings(),
+  environment: staging,
+};
+
 // // 3. Configure modal ethereum client
 // const ethereumClient = new EthereumClient(wagmiClient, chains);
 
@@ -101,7 +107,9 @@ export default function App({ Component, pageProps }: AppProps) {
             <SetGlobalStateContext.Provider value={setGlobalState}>
               {ready && (
                 <WagmiConfig client={client}>
-                  <Component {...pageProps} />
+                  <LensProvider config={lensConfig}>
+                    <Component {...pageProps} />
+                  </LensProvider>
                 </WagmiConfig>
               )}
             </SetGlobalStateContext.Provider>
