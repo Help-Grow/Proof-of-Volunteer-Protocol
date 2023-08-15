@@ -1,32 +1,37 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Result,
-  Button,
-  Dialog,
-  Form,
-  NoticeBar,
-  Input,
-} from "antd-mobile";
-import { SmileOutline } from "antd-mobile-icons";
-import styles from "@/styles/common.module.css";
+
+// Components
+import Image from "next/image";
 import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
+import { Card, Result, Button, Dialog } from "antd-mobile";
+import { SmileOutline } from "antd-mobile-icons";
+
+// Hooks
 import {
   useAccount,
   useContractWrite,
   useDisconnect,
   usePrepareContractWrite,
 } from "wagmi";
-import abiJson from "@/povp_abi.json";
-// import { CONTRACT_ADDRESS } from "@/constants";
+import { useLensLogin } from "@/hooks/useLensLogin";
 import { useRouter } from "next/router";
 import { useGlobalState } from "@/hooks/globalContext";
+import { useActiveProfile, useCreatePost } from "@lens-protocol/react-web";
+
+// Constants
+import abiJson from "@/povp_abi.json";
 import { povp_Contract_Address, Web3StorageApi } from "@/constants";
+
+// Enums
+import { ContentFocus, ReferencePolicyType } from "@lens-protocol/react-web";
+
+// Utils
 import { Web3Storage } from "web3.storage";
 import Web3 from "web3";
-import Image from "next/image";
-// import { useMetaMask } from "@/hooks/useMetamask";
 import { WalletOptions } from "@/components/walletoptions";
+
+import styles from "@/styles/common.module.css";
+
 export interface ConnectWalletPageProps {}
 
 const getRawData = (imgUrl: string, email: string) => ({
@@ -107,6 +112,17 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   const { disconnect } = useDisconnect();
   const router = useRouter();
   const { recipient, ipfsImageUrl, email } = useGlobalState();
+  const { data: activeProfile, loading: profileLoading } = useActiveProfile();
+  const {
+    execute: createPost,
+    error: isPostError,
+    isPending: isPostPending,
+  } = useCreatePost({
+    publisher: activeProfile!,
+    upload: async () => ipfsImageUrl!,
+  });
+
+  console.log("isPostPending", isPostPending);
 
   // metamask sdk
   // const { wallet, hasProvider, isConnecting, connectMetaMask } = useMetaMask();
@@ -123,49 +139,52 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
     setClient(new Web3Storage({ token: Web3StorageApi }));
   }, []);
 
-  const { config } = usePrepareContractWrite({
-    addressOrName: povp_Contract_Address,
-    contractInterface: abiJson,
-    functionName: "mint",
-    args: [walletAddress, metaData],
-  });
-  const {
-    data,
-    isLoading,
-    isSuccess,
-    writeAsync,
-    status: contractStatus,
-  } = useContractWrite({
-    ...config,
-  });
-
-  useEffect(() => {
-    if (metaData && walletAddress) {
-      writeAsync?.();
-    }
-  }, [metaData, walletAddress, writeAsync]);
-
-  console.log("data", data, isSuccess, isLoading, status, contractStatus);
+  const { LoginWithLensButton, isLoginPending, loginError } = useLensLogin();
 
   const handleMint = async () => {
-    var web3 = new Web3(Web3.givenProvider);
-    if (web3) {
-      const accounts = await web3.eth.getAccounts();
-      setWalletAddress(accounts[0]);
-      console.log(accounts[0]);
-    } else {
+    // var web3 = new Web3(Web3.givenProvider);
+    // if (web3) {
+    //   const accounts = await web3.eth.getAccounts();
+    //   setWalletAddress(accounts[0]);
+    //   console.log(accounts[0]);
+    // } else {
+    //   console.log("Please connect wallet");
+    // }
+    if (!activeProfile) {
       console.log("Please connect wallet");
     }
 
-    if (client && ipfsImageUrl && email) {
-      const blob = new Blob(
-        [JSON.stringify(getRawData(ipfsImageUrl!, email))],
-        {
-          type: "application/json",
-        }
-      );
-      const rootCid = await client?.put([new File([blob], "povpsbt.json")]);
-      setmetaData(rootCid);
+    console.log(ipfsImageUrl, email);
+
+    if (ipfsImageUrl && email) {
+      // there is an bug that if the createPost transaction haven't been indexed, then the indexed query call will call infinite times. this should be the hooks error.
+      const res = await createPost({
+        content: JSON.stringify(getRawData(ipfsImageUrl!, email)),
+        contentFocus: ContentFocus.TEXT,
+        locale: "en",
+        reference: { type: ReferencePolicyType.ANYONE },
+      });
+
+      console.log(res.unwrap());
+      console.log(res.isSuccess());
+      if (res.isSuccess()) {
+        Dialog.alert({
+          content: "Mint Success!",
+          confirmText: "Got it",
+          onConfirm: () => {
+            router.push("/povp/done");
+          },
+        });
+      }
+
+      // const blob = new Blob(
+      //   [JSON.stringify(getRawData(ipfsImageUrl!, email))],
+      //   {
+      //     type: "application/json",
+      //   }
+      // );
+      // const rootCid = await client?.put([new File([blob], "povpsbt.json")]);
+      // setmetaData(rootCid);
     }
   };
 
@@ -175,18 +194,6 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   //   if (fileName.length && bucketName.length)
   //     setImageUrl(`https://${bucketName}.4everland.store/${fileName}`);
   // }, []);
-
-  useEffect(() => {
-    if (isSuccess) {
-      Dialog.alert({
-        content: "Mint Success!",
-        confirmText: "Got it",
-        onConfirm: () => {
-          router.push("/povp/done");
-        },
-      });
-    }
-  }, [isSuccess, router]);
 
   // useEffect(() => {
   //   if (recipient) {
@@ -216,6 +223,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
           )} */}
 
           {!isConnected && <WalletOptions />}
+          {!activeProfile && <LoginWithLensButton />}
           <div
             style={{
               display: "flex",
@@ -261,15 +269,15 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
             </Form>
           )} */}
 
-          {isConnected && (
+          {isConnected && !isLoginPending && (
             <>
               <Button
                 style={{ margin: "12px 0px" }}
                 block
                 color="primary"
                 onClick={handleMint}
-                loading={isLoading}
-                disabled={isSuccess}
+                loading={isPostPending}
+                disabled={!!isPostError}
               >
                 Mint now
               </Button>
