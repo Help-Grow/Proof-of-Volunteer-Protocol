@@ -5,7 +5,7 @@ import { Card, Button, Image } from "antd-mobile";
 import {
   LensClient,
   development,
-  PublicationSortCriteria
+  PublicationSortCriteria,
 } from "@lens-protocol/client";
 import { useRouter } from "next/router";
 import LocalStorageProvider from "../storage";
@@ -24,7 +24,7 @@ export default function Home() {
     () =>
       new LensClient({
         environment: development,
-        storage: new LocalStorageProvider()
+        storage: new LocalStorageProvider(),
       }),
     []
   );
@@ -64,7 +64,7 @@ export default function Home() {
     async function fetchProfile() {
       const allOwnedProfiles = await lensClient.profile.fetchAll({
         ownedBy: [address],
-        limit: 1
+        limit: 1,
       });
       setProfile(allOwnedProfiles.items[0]); // cannot access profile directly for next step, it will return undefined
       return allOwnedProfiles.items[0];
@@ -76,10 +76,10 @@ export default function Home() {
         noRandomize: true,
         metadata: {
           tags: {
-            oneOf: ["HelpAndGrow"]
-          }
+            oneOf: ["HelpAndGrow"],
+          },
         },
-        sortCriteria: PublicationSortCriteria.Latest
+        sortCriteria: PublicationSortCriteria.Latest,
       });
 
       setPublications(publications.items);
@@ -99,7 +99,7 @@ export default function Home() {
     console.log(id);
     const typedDataResult = await lensClient.publication.createCollectTypedData(
       {
-        publicationId: id
+        publicationId: id,
       }
     );
     // sign and broadcast the typed data
@@ -112,17 +112,17 @@ export default function Home() {
       name: d.name,
 
       verifyingContract: d.verifyingContract,
-      version: d.version
+      version: d.version,
     };
     const sig = await signTypedDataAsync({
       domain: dTmp,
       types: result.typedData.types,
-      value: result.typedData.value
+      value: result.typedData.value,
     });
 
     const broadcastResult = await lensClient.transaction.broadcast({
       id: data.id,
-      signature: sig
+      signature: sig,
     });
     console.log(broadcastResult);
   }

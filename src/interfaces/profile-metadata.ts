@@ -1,4 +1,4 @@
-import { GenericMetadata, MetadataDisplayType } from './generic';
+import { GenericMetadata, MetadataDisplayType } from "./generic";
 
 export interface AttributeData {
   displayType?: MetadataDisplayType;

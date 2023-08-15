@@ -24,7 +24,7 @@ export interface GenericMetadata {
 }
 
 export enum MetadataDisplayType {
-  number = 'number',
-  string = 'string',
-  date = 'date'
+  number = "number",
+  string = "string",
+  date = "date",
 }

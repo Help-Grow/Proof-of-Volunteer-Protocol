@@ -1,5 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
   result: any;
@@ -9,8 +9,8 @@ type Data = {
 export const config = {
   api: {
     responseLimit: false,
-    bodyParser: false
-  }
+    bodyParser: false,
+  },
 };
 
 async function toDataURL_node(url: string) {
@@ -22,14 +22,21 @@ async function toDataURL_node(url: string) {
 const get = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   try {
     const { fileResId } = req.query;
-    const fileBuffer = await toDataURL_node('https://arseed.web3infra.dev/' + fileResId);
+    const fileBuffer = await toDataURL_node(
+      "https://arseed.web3infra.dev/" + fileResId
+    );
     res.status(200).send({ result: fileBuffer });
   } catch (err) {
-    console.log('error: ', err);
-    res.status(500).send({ result: 'error' });
+    console.log("error: ", err);
+    res.status(500).send({ result: "error" });
   }
 };
 
-export default function upload(req: NextApiRequest, res: NextApiResponse<Data>) {
-  req.method === 'GET' ? get(req, res) : res.status(404).send({ result: 'only get' });
+export default function upload(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) {
+  req.method === "GET"
+    ? get(req, res)
+    : res.status(404).send({ result: "only get" });
 }

@@ -1,8 +1,8 @@
-import { Card, Result, Button } from 'antd-mobile';
-import { SmileOutline } from 'antd-mobile-icons';
-import styles from '@/styles/common.module.css';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { Card, Result, Button } from "antd-mobile";
+import { SmileOutline } from "antd-mobile-icons";
+import styles from "@/styles/common.module.css";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 export interface MintPageProps {}
 
@@ -10,7 +10,7 @@ const MintPage: React.FC<MintPageProps> = () => {
   return (
     <div className={styles.app}>
       <div className={styles.body}>
-        <Card style={{ width: '100%' }}>
+        <Card style={{ width: "100%" }}>
           <Result
             icon={<SmileOutline />}
             status="success"
@@ -23,7 +23,10 @@ const MintPage: React.FC<MintPageProps> = () => {
           </Link>
         </Card>
 
-        <Link href="/pomp/done" style={{ fontSize: '18px', textDecorationLine: 'underline' }}>
+        <Link
+          href="/pomp/done"
+          style={{ fontSize: "18px", textDecorationLine: "underline" }}
+        >
           Mint later
         </Link>
       </div>

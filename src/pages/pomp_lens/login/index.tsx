@@ -11,7 +11,7 @@ import {
   Dialog,
   Form,
   Input,
-  NoticeBar
+  NoticeBar,
 } from "antd-mobile";
 import { useSetGlobalState, useGlobalState } from "@/hooks/globalContext";
 import { LensClient, development } from "@lens-protocol/client";
@@ -31,7 +31,7 @@ export default function Home() {
   const { isConnected, address } = useAccount();
   const lensClient = new LensClient({
     environment: development,
-    storage: new LocalStorageProvider()
+    storage: new LocalStorageProvider(),
   });
   const { signMessageAsync } = useSignMessage();
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function Home() {
         confirmText: "Got it",
         onConfirm: () => {
           router.push("/pomp_lens/profile");
-        }
+        },
       });
     }
   }, [token, router]);
@@ -98,7 +98,7 @@ export default function Home() {
 
       // const signature = await signer.signMessage(challenge);
       const signature = await signMessageAsync({
-        message: challenge
+        message: challenge,
       });
 
       await lensClient.authentication.authenticate(

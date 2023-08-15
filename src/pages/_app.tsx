@@ -6,13 +6,13 @@ import {
   createClient,
   WagmiConfig,
   useConnect,
-  CreateClientConfig
+  CreateClientConfig,
 } from "wagmi";
 import { polygonMumbai } from "wagmi/chains";
 import { GlobalState } from "@/types/global";
 import {
   GlobalStateContext,
-  SetGlobalStateContext
+  SetGlobalStateContext,
 } from "@/hooks/globalContext";
 import { NotificationProvider } from "@web3uikit/core";
 import { ConfigProvider } from "antd-mobile";
@@ -50,8 +50,8 @@ const client = createClient({
     new CoinbaseWalletConnector({
       chains,
       options: {
-        appName: "wagmi"
-      }
+        appName: "wagmi",
+      },
     }),
     // new WalletConnectConnector({
     //   chains,
@@ -63,12 +63,12 @@ const client = createClient({
       chains,
       options: {
         name: "Injected",
-        shimDisconnect: true
-      }
-    })
+        shimDisconnect: true,
+      },
+    }),
   ],
   provider,
-  webSocketProvider
+  webSocketProvider,
 });
 
 // // 3. Configure modal ethereum client

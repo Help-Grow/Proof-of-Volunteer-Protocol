@@ -1,9 +1,17 @@
-import React from 'react';
-import { NoticeBar, Space, Input, Form, Button, Result, Card } from 'antd-mobile';
-import { SmileOutline } from 'antd-mobile-icons';
-import { useRouter } from 'next/router';
-import styles from '@/styles/common.module.css';
-import { useSetGlobalState } from '@/hooks/globalContext';
+import React from "react";
+import {
+  NoticeBar,
+  Space,
+  Input,
+  Form,
+  Button,
+  Result,
+  Card,
+} from "antd-mobile";
+import { SmileOutline } from "antd-mobile-icons";
+import { useRouter } from "next/router";
+import styles from "@/styles/common.module.css";
+import { useSetGlobalState } from "@/hooks/globalContext";
 
 export interface CheckInPageProps {}
 
@@ -14,16 +22,16 @@ const CheckInPage: React.FC<CheckInPageProps> = (props) => {
 
   const handleSubmit = async () => {
     const { email } = await form.validateFields();
-    router.push({ pathname: '/pomp/welcome' });
+    router.push({ pathname: "/pomp/welcome" });
     setGlobalState((pre) => ({ ...pre, email }));
   };
 
   return (
     <div className={styles.app}>
       <div className={styles.body}>
-        <Space direction="vertical" style={{ '--gap': '20px' }}>
+        <Space direction="vertical" style={{ "--gap": "20px" }}>
           <Card>
-            <Space direction="vertical" style={{ '--gap': '16px' }}>
+            <Space direction="vertical" style={{ "--gap": "16px" }}>
               <Result
                 icon={<SmileOutline />}
                 status="success"
@@ -36,8 +44,8 @@ const CheckInPage: React.FC<CheckInPageProps> = (props) => {
                   name="email"
                   validateTrigger="onBlur"
                   rules={[
-                    { required: true, message: 'Please input' },
-                    { type: 'email', message: 'Invalid email' }
+                    { required: true, message: "Please input" },
+                    { type: "email", message: "Invalid email" },
                   ]}
                 >
                   <Input placeholder="Input Email" clearable />

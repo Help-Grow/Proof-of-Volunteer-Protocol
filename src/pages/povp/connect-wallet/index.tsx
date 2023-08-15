@@ -6,7 +6,7 @@ import {
   Dialog,
   Form,
   NoticeBar,
-  Input
+  Input,
 } from "antd-mobile";
 import { SmileOutline } from "antd-mobile-icons";
 import styles from "@/styles/common.module.css";
@@ -15,7 +15,7 @@ import {
   useAccount,
   useContractWrite,
   useDisconnect,
-  usePrepareContractWrite
+  usePrepareContractWrite,
 } from "wagmi";
 import abiJson from "@/povp_abi.json";
 // import { CONTRACT_ADDRESS } from "@/constants";
@@ -38,29 +38,29 @@ const getRawData = (imgUrl: string, email: string) => ({
     {
       display_type: "date",
       trait_type: "POVP Date",
-      value: Math.round(Date.now() / 1000)
+      value: Math.round(Date.now() / 1000),
     },
     {
       trait_type: "Organizer",
-      value: "Help & Grow"
+      value: "Help & Grow",
     },
     {
       trait_type: "Event Name",
-      value: "Digital Literacy Help"
+      value: "Digital Literacy Help",
     },
     {
       trait_type: "PIC to Claim From",
-      value: "Katrina"
+      value: "Katrina",
     },
     {
       trait_type: "Volunteer Name",
-      value: "Jerry"
+      value: "Jerry",
     },
     {
       trait_type: "Volunteer Email",
-      value: email
-    }
-  ]
+      value: email,
+    },
+  ],
 });
 
 // const useUploadImage = ({
@@ -127,16 +127,16 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
     address: povp_Contract_Address,
     abi: abiJson,
     functionName: "mint",
-    args: [walletAddress, metaData]
+    args: [walletAddress, metaData],
   });
   const {
     data,
     isLoading,
     isSuccess,
     writeAsync,
-    status: contractStatus
+    status: contractStatus,
   } = useContractWrite({
-    ...config
+    ...config,
   });
 
   useEffect(() => {
@@ -161,7 +161,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
       const blob = new Blob(
         [JSON.stringify(getRawData(ipfsImageUrl!, email))],
         {
-          type: "application/json"
+          type: "application/json",
         }
       );
       const rootCid = await client?.put([new File([blob], "povpsbt.json")]);
@@ -183,7 +183,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
         confirmText: "Got it",
         onConfirm: () => {
           router.push("/povp/done");
-        }
+        },
       });
     }
   }, [isSuccess, router]);
@@ -220,7 +220,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
             style={{
               display: "flex",
               justifyContent: "center",
-              marginBottom: "24px"
+              marginBottom: "24px",
             }}
           >
             {ipfsImageUrl?.length && isConnected && (

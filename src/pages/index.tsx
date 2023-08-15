@@ -1,19 +1,23 @@
-import { Web3Button, Web3NetworkSwitch } from '@web3modal/react';
-import { useContractRead, useContractWrite, usePrepareContractWrite } from 'wagmi';
-import abiJson from '@/abi.json';
-import { useEffect, useState } from 'react';
-import { Upload } from '@aws-sdk/lib-storage';
-import { CameraOutline } from 'antd-mobile-icons';
-import { Dialog, ImageUploader, ImageUploadItem } from 'antd-mobile';
-import { S3 } from '@aws-sdk/client-s3';
+import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
+import {
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+} from "wagmi";
+import abiJson from "@/abi.json";
+import { useEffect, useState } from "react";
+import { Upload } from "@aws-sdk/lib-storage";
+import { CameraOutline } from "antd-mobile-icons";
+import { Dialog, ImageUploader, ImageUploadItem } from "antd-mobile";
+import { S3 } from "@aws-sdk/client-s3";
 
-const AllowedImageTypes = ['jpeg', 'png', 'gif'];
+const AllowedImageTypes = ["jpeg", "png", "gif"];
 
 export default function HomePage() {
   // The address of the smart contract on Polygon
-  const contract = '0x1e2f63405d0738B9F954E48F5292e305268750ea';
+  const contract = "0x1e2f63405d0738B9F954E48F5292e305268750ea";
   // The wallet address that will receive the SBT
-  const addr = '0x088238BaFC6d368d5aF78F2FD719C0008dec6Fdb';
+  const addr = "0x088238BaFC6d368d5aF78F2FD719C0008dec6Fdb";
   // This will determine the which token given to the user, e.g. Event1 -> tokenId 1, Event2 -> tokenId 2
   const tokenId = 1;
 
@@ -27,12 +31,12 @@ export default function HomePage() {
   const { config } = usePrepareContractWrite({
     address: contract,
     abi: abiJson,
-    functionName: 'mint',
-    args: [addr, tokenId, 'https://www.youtube.com/watch?v=3tGYbYZRqdY']
+    functionName: "mint",
+    args: [addr, tokenId, "https://www.youtube.com/watch?v=3tGYbYZRqdY"],
   });
   const { data, isLoading, isSuccess, write } = useContractWrite(config);
 
-  const [url, setUrl] = useState<string>('');
+  const [url, setUrl] = useState<string>("");
 
   /**
    * In the smart contract the media URI is saved as the type `mapping (address => mapping(uint256 => string))`
@@ -41,26 +45,26 @@ export default function HomePage() {
   const { data: tokenUriData } = useContractRead({
     address: contract,
     abi: abiJson,
-    functionName: '_tokenURIs',
-    args: [addr, tokenId]
+    functionName: "_tokenURIs",
+    args: [addr, tokenId],
   });
 
   const [s3client, setClient] = useState<S3>();
 
   useEffect(() => {
     const s3 = new S3({
-      endpoint: 'https://endpoint.4everland.co',
+      endpoint: "https://endpoint.4everland.co",
       credentials: {
-        accessKeyId: 'ON4I2LI6AHLHFVJ838EL',
-        secretAccessKey: 'gQFNviKG3+rRHw3sKkUf+1silQZ2KhQEMIxS3Ad1'
+        accessKeyId: "ON4I2LI6AHLHFVJ838EL",
+        secretAccessKey: "gQFNviKG3+rRHw3sKkUf+1silQZ2KhQEMIxS3Ad1",
       },
-      region: 'us-west-2'
+      region: "us-west-2",
     });
     setClient(s3);
   }, []);
 
   const handleUpload = async (file: File): Promise<ImageUploadItem> => {
-    if (AllowedImageTypes.map((t) => 'image/' + t).includes(file.type)) {
+    if (AllowedImageTypes.map((t) => "image/" + t).includes(file.type)) {
       if (s3client) {
         const buckets = await s3client.listBuckets({});
         if (buckets.Buckets) {
@@ -104,7 +108,7 @@ export default function HomePage() {
       // setShowWarning(true);
     }
     return {
-      url: URL.createObjectURL(file)
+      url: URL.createObjectURL(file),
     };
   };
 
@@ -134,12 +138,12 @@ export default function HomePage() {
         onChange={setFileList}
         upload={handleUpload}
         maxCount={1}
-        style={{ '--cell-size': '240px' }}
+        style={{ "--cell-size": "240px" }}
         onDelete={() =>
           Dialog.confirm({
-            content: 'Are you sure to remove this photo?',
-            cancelText: 'Cancel',
-            confirmText: 'Confirm'
+            content: "Are you sure to remove this photo?",
+            cancelText: "Cancel",
+            confirmText: "Confirm",
             // onConfirm: () => {
             //   if (blobUrl) URL.revokeObjectURL(blobUrl);
             // }
@@ -151,11 +155,11 @@ export default function HomePage() {
             width: 240,
             height: 240,
             borderRadius: 80,
-            backgroundColor: '#f5f5f5',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            color: '#999999'
+            backgroundColor: "#f5f5f5",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "#999999",
           }}
         >
           <CameraOutline style={{ fontSize: 96 }} />

@@ -1,13 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Result, ImageUploader, ImageUploadItem, Dialog, Tag, Button } from 'antd-mobile';
-import { SmileOutline, CameraOutline } from 'antd-mobile-icons';
-import styles from '@/styles/common.module.css';
-import Link from 'next/link';
-import { S3 } from '@aws-sdk/client-s3';
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  Result,
+  ImageUploader,
+  ImageUploadItem,
+  Dialog,
+  Tag,
+  Button,
+} from "antd-mobile";
+import { SmileOutline, CameraOutline } from "antd-mobile-icons";
+import styles from "@/styles/common.module.css";
+import Link from "next/link";
+import { S3 } from "@aws-sdk/client-s3";
 
 export interface TakePhotoPageProps {}
 
-const AllowedImageTypes = ['jpeg', 'png', 'gif'];
+const AllowedImageTypes = ["jpeg", "png", "gif"];
 
 const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
   const [err, setErr] = useState<string>();
@@ -21,19 +29,19 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
 
   useEffect(() => {
     const s3 = new S3({
-      endpoint: 'https://endpoint.4everland.co',
+      endpoint: "https://endpoint.4everland.co",
       credentials: {
-        accessKeyId: 'ON4I2LI6AHLHFVJ838EL',
-        secretAccessKey: 'gQFNviKG3+rRHw3sKkUf+1silQZ2KhQEMIxS3Ad1'
+        accessKeyId: "ON4I2LI6AHLHFVJ838EL",
+        secretAccessKey: "gQFNviKG3+rRHw3sKkUf+1silQZ2KhQEMIxS3Ad1",
       },
-      region: 'us-west-2'
+      region: "us-west-2",
     });
     setClient(s3);
   }, []);
 
   const handleUpload = async (file: File): Promise<ImageUploadItem> => {
     setShowWarning(false);
-    if (AllowedImageTypes.map((t) => 'image/' + t).includes(file.type)) {
+    if (AllowedImageTypes.map((t) => "image/" + t).includes(file.type)) {
       if (s3client) {
         const buckets = await s3client.listBuckets({});
         if (buckets.Buckets) {
@@ -43,10 +51,10 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
               Bucket: bucketName,
               Key: file.name,
               Body: file,
-              ContentType: file.type
+              ContentType: file.type,
             });
-            localStorage.setItem('BucketName', bucketName);
-            localStorage.setItem('ImageFileName', file.name);
+            localStorage.setItem("BucketName", bucketName);
+            localStorage.setItem("ImageFileName", file.name);
             setImageObj({ name: file.name, bucket: bucketName });
           }
         }
@@ -55,14 +63,14 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
       setShowWarning(true);
     }
     return {
-      url: URL.createObjectURL(file)
+      url: URL.createObjectURL(file),
     };
   };
 
   return (
     <div className={styles.app}>
       <div className={styles.body}>
-        <Card style={{ width: '100%' }}>
+        <Card style={{ width: "100%" }}>
           <Result
             icon={<SmileOutline />}
             status="success"
@@ -76,8 +84,11 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
               </Button>
             </Link>
           ) : (
-            <div style={{ textAlign: 'center' }}>
-              <Link href="/pomp/mint" style={{ fontSize: '18px', textDecorationLine: 'underline' }}>
+            <div style={{ textAlign: "center" }}>
+              <Link
+                href="/pomp/mint"
+                style={{ fontSize: "18px", textDecorationLine: "underline" }}
+              >
                 Skip first
               </Link>
             </div>
@@ -86,12 +97,12 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
 
         <div
           style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            gap: '20px'
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            gap: "20px",
           }}
         >
           <ImageUploader
@@ -99,18 +110,18 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
             onChange={setFileList}
             upload={handleUpload}
             maxCount={1}
-            style={{ '--cell-size': '240px' }}
+            style={{ "--cell-size": "240px" }}
             onDelete={() =>
               Dialog.confirm({
-                content: 'Are you sure to remove this photo?',
-                cancelText: 'Cancel',
-                confirmText: 'Confirm',
+                content: "Are you sure to remove this photo?",
+                cancelText: "Cancel",
+                confirmText: "Confirm",
                 onConfirm: () => {
                   s3client?.deleteObject({
                     Bucket: imageObj?.bucket,
-                    Key: imageObj?.name
+                    Key: imageObj?.name,
                   });
-                }
+                },
               })
             }
           >
@@ -119,17 +130,19 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
                 width: 240,
                 height: 240,
                 borderRadius: 80,
-                backgroundColor: '#f5f5f5',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                color: '#999999'
+                backgroundColor: "#f5f5f5",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "#999999",
               }}
             >
               <CameraOutline style={{ fontSize: 96 }} />
             </div>
           </ImageUploader>
-          {showWarning && <Tag>Only types: {AllowedImageTypes.join(', ')} are allowed</Tag>}
+          {showWarning && (
+            <Tag>Only types: {AllowedImageTypes.join(", ")} are allowed</Tag>
+          )}
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Button, Card, Form, Input, Result, Tabs } from 'antd-mobile';
-import { SmileOutline } from 'antd-mobile-icons';
-import styles from '@/styles/common.module.css';
-import Link from 'next/link';
+import React from "react";
+import { Button, Card, Form, Input, Result, Tabs } from "antd-mobile";
+import { SmileOutline } from "antd-mobile-icons";
+import styles from "@/styles/common.module.css";
+import Link from "next/link";
 
 export interface ConnectAccountPageProps {}
 
@@ -10,8 +10,12 @@ const ConnectAccountPage: React.FC<ConnectAccountPageProps> = (props) => {
   return (
     <div className={styles.app}>
       <div className={styles.body}>
-        <Card style={{ width: '100%' }}>
-          <Result icon={<SmileOutline />} status="success" title="Input Mia's account" />
+        <Card style={{ width: "100%" }}>
+          <Result
+            icon={<SmileOutline />}
+            status="success"
+            title="Input Mia's account"
+          />
 
           <Tabs defaultActiveKey="Ethereum">
             <Tabs.Tab title="Ethereum Address" key="Ethereum">

@@ -4,7 +4,7 @@ import {
   createContext,
   PropsWithChildren,
   useContext,
-  useCallback
+  useCallback,
 } from "react";
 
 import detectEthereumProvider from "@metamask/detect-provider";
@@ -27,7 +27,7 @@ interface MetaMaskContextData {
 
 const disconnectedState: WalletState = {
   accounts: [],
-  chainId: ""
+  chainId: "",
 };
 
 const MetaMaskContext = createContext<MetaMaskContextData>(
@@ -64,7 +64,7 @@ export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
     //   })
     // );
     const chainId = await window.ethereum.request({
-      method: "eth_chainId"
+      method: "eth_chainId",
     });
 
     setWallet({ accounts, chainId });
@@ -119,7 +119,7 @@ export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
 
     try {
       const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts"
+        method: "eth_requestAccounts",
       });
       clearError();
       updateWallet(accounts);
@@ -138,7 +138,7 @@ export const MetaMaskContextProvider = ({ children }: PropsWithChildren) => {
         errorMessage,
         isConnecting,
         connectMetaMask,
-        clearError
+        clearError,
       }}
     >
       {children}

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Space, Button, Result } from 'antd-mobile';
-import { SmileOutline } from 'antd-mobile-icons';
-import styles from '@/styles/common.module.css';
-import Link from 'next/link';
-import { useGlobalState } from '@/hooks/globalContext';
+import React, { useEffect, useState } from "react";
+import { Card, Space, Button, Result } from "antd-mobile";
+import { SmileOutline } from "antd-mobile-icons";
+import styles from "@/styles/common.module.css";
+import Link from "next/link";
+import { useGlobalState } from "@/hooks/globalContext";
 
 export interface AttendeeDetailProps {}
 
@@ -13,8 +13,8 @@ const AttendeeDetail: React.FC<AttendeeDetailProps> = () => {
   return (
     <div className={styles.app}>
       <div className={styles.body}>
-        <Space direction="vertical" style={{ '--gap': '20px' }}>
-          <Card style={{ width: '100%', fontSize: '18px' }}>
+        <Space direction="vertical" style={{ "--gap": "20px" }}>
+          <Card style={{ width: "100%", fontSize: "18px" }}>
             <Result icon={<SmileOutline />} title="" />
             <div>
               <b>Name: </b>

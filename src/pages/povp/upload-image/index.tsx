@@ -1,16 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Result, ImageUploader, ImageUploadItem, Dialog, Tag, Button } from 'antd-mobile';
-import { SmileOutline, CameraOutline } from 'antd-mobile-icons';
-import styles from '@/styles/common.module.css';
-import Link from 'next/link';
-import { Web3StorageApi } from '@/constants';
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  Result,
+  ImageUploader,
+  ImageUploadItem,
+  Dialog,
+  Tag,
+  Button,
+} from "antd-mobile";
+import { SmileOutline, CameraOutline } from "antd-mobile-icons";
+import styles from "@/styles/common.module.css";
+import Link from "next/link";
+import { Web3StorageApi } from "@/constants";
 // import { S3 } from '@aws-sdk/client-s3';
-import { Web3Storage } from 'web3.storage';
-import { useSetGlobalState } from '@/hooks/globalContext';
+import { Web3Storage } from "web3.storage";
+import { useSetGlobalState } from "@/hooks/globalContext";
 
 export interface TakePhotoPageProps {}
 
-const AllowedImageTypes = ['jpeg', 'png', 'gif'];
+const AllowedImageTypes = ["jpeg", "png", "gif"];
 
 const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
   const [err, setErr] = useState<string>();
@@ -39,7 +47,7 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
 
   const handleUpload = async (file: File): Promise<ImageUploadItem> => {
     setShowWarning(false);
-    if (AllowedImageTypes.map((t) => 'image/' + t).includes(file.type)) {
+    if (AllowedImageTypes.map((t) => "image/" + t).includes(file.type)) {
       // if (s3client) {
       //   const buckets = await s3client.listBuckets({});
       //   if (buckets.Buckets) {
@@ -57,12 +65,12 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
       //     }
       //   }
       // }
-      console.log('Upload Started');
+      console.log("Upload Started");
       if (client) {
         const rootCid = await client.put([file]);
         var ipfsImageUrl = `https://${rootCid}.ipfs.w3s.link/${file.name}`;
         setGlobalState((pre) => ({ ...pre, ipfsImageUrl }));
-        console.log('Image ' + ipfsImageUrl);
+        console.log("Image " + ipfsImageUrl);
 
         // sample https:/bafybeihm2clcti5ch7y2tke4ocqy6sgmtbe3hcnc3xbn5v4oiiym5vatv4.ipfs.dweb.link/Tom-and-jerry.jpeg
       }
@@ -70,14 +78,14 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
       setShowWarning(true);
     }
     return {
-      url: URL.createObjectURL(file)
+      url: URL.createObjectURL(file),
     };
   };
 
   return (
     <div className={styles.app}>
       <div className={styles.body}>
-        <Card style={{ width: '100%' }}>
+        <Card style={{ width: "100%" }}>
           <Result
             icon={<SmileOutline />}
             status="success"
@@ -102,12 +110,12 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
 
         <div
           style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            gap: '20px'
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            gap: "20px",
           }}
         >
           <ImageUploader
@@ -115,7 +123,7 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
             onChange={setFileList}
             upload={handleUpload}
             maxCount={1}
-            style={{ '--cell-size': '240px' }}
+            style={{ "--cell-size": "240px" }}
             // onDelete={() =>
             //   Dialog.confirm({
             //     content: 'Are you sure to remove this photo?',
@@ -135,17 +143,19 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
                 width: 240,
                 height: 240,
                 borderRadius: 80,
-                backgroundColor: '#f5f5f5',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                color: '#999999'
+                backgroundColor: "#f5f5f5",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "#999999",
               }}
             >
               <CameraOutline style={{ fontSize: 96 }} />
             </div>
           </ImageUploader>
-          {showWarning && <Tag>Only types: {AllowedImageTypes.join(', ')} are allowed</Tag>}
+          {showWarning && (
+            <Tag>Only types: {AllowedImageTypes.join(", ")} are allowed</Tag>
+          )}
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ export function WalletOptions() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "10px"
+        gap: "10px",
       }}
     >
       {connectors.map((connector) => (

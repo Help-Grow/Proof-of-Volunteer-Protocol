@@ -1,11 +1,11 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 
-const API_URL = 'https://api-mumbai.lens.dev'; //'https://api.lens.dev'
+const API_URL = "https://api-mumbai.lens.dev"; //'https://api.lens.dev'
 
 /* create the API client */
 export const client = new ApolloClient({
   uri: API_URL,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
 });
 
 /* define a GraphQL query  */
@@ -52,7 +52,9 @@ export const getProfile = gql`
 
 export const getPublications = gql`
   query Publications($id: ProfileId!, $limit: LimitScalar) {
-    publications(request: { profileId: $id, publicationTypes: [POST], limit: $limit }) {
+    publications(
+      request: { profileId: $id, publicationTypes: [POST], limit: $limit }
+    ) {
       items {
         __typename
         ... on Post {

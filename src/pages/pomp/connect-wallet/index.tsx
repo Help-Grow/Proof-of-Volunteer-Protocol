@@ -1,15 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Result, Button, Space, Toast, Dialog, Form, Input, NoticeBar } from 'antd-mobile';
-import { SmileOutline } from 'antd-mobile-icons';
-import styles from '@/styles/common.module.css';
-import { Web3Button, Web3NetworkSwitch } from '@web3modal/react';
-import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
-import { convertBase64, postData } from '@/util';
-import abiJson from '@/abi.json';
-import { CONTRACT_ADDRESS } from '@/constants';
-import { useRouter } from 'next/router';
-import { useGlobalState } from '@/hooks/globalContext';
-import Image from 'next/image';
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  Result,
+  Button,
+  Space,
+  Toast,
+  Dialog,
+  Form,
+  Input,
+  NoticeBar,
+} from "antd-mobile";
+import { SmileOutline } from "antd-mobile-icons";
+import styles from "@/styles/common.module.css";
+import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
+import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { convertBase64, postData } from "@/util";
+import abiJson from "@/abi.json";
+import { CONTRACT_ADDRESS } from "@/constants";
+import { useRouter } from "next/router";
+import { useGlobalState } from "@/hooks/globalContext";
+import Image from "next/image";
 
 export interface ConnectWalletPageProps {}
 
@@ -51,7 +61,7 @@ export interface ConnectWalletPageProps {}
 // };
 
 const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
-  const [imageUrl, setImageUrl] = useState<string>('');
+  const [imageUrl, setImageUrl] = useState<string>("");
   const { isConnected } = useAccount();
   const router = useRouter();
   const { recipient } = useGlobalState();
@@ -62,21 +72,21 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   const { config } = usePrepareContractWrite({
     address: CONTRACT_ADDRESS,
     abi: abiJson,
-    functionName: 'mint',
-    args: [walletAddress, '1', imageUrl]
+    functionName: "mint",
+    args: [walletAddress, "1", imageUrl],
   });
   const { data, isLoading, isSuccess, write } = useContractWrite(config);
 
-  console.log('data', data, isSuccess, walletAddress, imageUrl);
+  console.log("data", data, isSuccess, walletAddress, imageUrl);
 
   const handleMint = () => {
-    console.log('mint now');
+    console.log("mint now");
     write?.();
   };
 
   useEffect(() => {
-    const fileName = localStorage.getItem('ImageFileName') ?? '';
-    const bucketName = localStorage.getItem('BucketName') ?? '';
+    const fileName = localStorage.getItem("ImageFileName") ?? "";
+    const bucketName = localStorage.getItem("BucketName") ?? "";
     if (fileName.length && bucketName.length)
       setImageUrl(`https://${bucketName}.4everland.store/${fileName}`);
   }, []);
@@ -84,11 +94,11 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   useEffect(() => {
     if (isSuccess) {
       const res = Dialog.alert({
-        content: 'Mint Success!',
-        confirmText: 'Got it',
+        content: "Mint Success!",
+        confirmText: "Got it",
         onConfirm: () => {
-          router.push('/pomp/done');
-        }
+          router.push("/pomp/done");
+        },
       });
     }
   }, [isSuccess, router]);
@@ -102,26 +112,30 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   return (
     <div className={styles.app}>
       <div className={styles.body}>
-        <Card style={{ width: '100%' }}>
-          <Result icon={<SmileOutline />} status="success" title="Connect Wallet!" />
+        <Card style={{ width: "100%" }}>
+          <Result
+            icon={<SmileOutline />}
+            status="success"
+            title="Connect Wallet!"
+          />
 
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginBottom: '24px'
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "24px",
             }}
           >
             {imageUrl.length && isConnected && (
               <Image
                 src={imageUrl}
                 alt=""
-                style={{ maxHeight: '300px', width: 'auto', maxWidth: '100%' }}
+                style={{ maxHeight: "300px", width: "auto", maxWidth: "100%" }}
               />
             )}
           </div>
 
-          <div style={{ textAlign: 'center', margin: '32px 0px' }}>
+          <div style={{ textAlign: "center", margin: "32px 0px" }}>
             <Web3NetworkSwitch />
             {/* <Web3Button icon="show" label="Connect Wallet" balance="show"></Web3Button> */}
           </div>
@@ -146,7 +160,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
 
           {isConnected && (
             <Button
-              style={{ margin: '12px 0px' }}
+              style={{ margin: "12px 0px" }}
               block
               color="primary"
               onClick={handleMint}

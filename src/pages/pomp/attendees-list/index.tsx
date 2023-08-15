@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
-import { Result, Form, Input, List, Card, InfiniteScroll, Dialog } from 'antd-mobile';
-import { useRouter } from 'next/router';
-import { SmileOutline, UserContactOutline } from 'antd-mobile-icons';
-import { Attendee } from '@/types/attendee';
-import { ATTENDEES } from '@/json/attendees';
-import styles from '@/styles/common.module.css';
-import { useSetGlobalState } from '@/hooks/globalContext';
+import React, { useState } from "react";
+import {
+  Result,
+  Form,
+  Input,
+  List,
+  Card,
+  InfiniteScroll,
+  Dialog,
+} from "antd-mobile";
+import { useRouter } from "next/router";
+import { SmileOutline, UserContactOutline } from "antd-mobile-icons";
+import { Attendee } from "@/types/attendee";
+import { ATTENDEES } from "@/json/attendees";
+import styles from "@/styles/common.module.css";
+import { useSetGlobalState } from "@/hooks/globalContext";
 
 export interface AttendeesListProps {}
 
 const AttendeesList: React.FC<AttendeesListProps> = (props) => {
   const router = useRouter();
   const [form] = Form.useForm();
-  const [searchKey, setSearchKey] = useState('');
+  const [searchKey, setSearchKey] = useState("");
   const setGlobalState = useSetGlobalState();
 
   const handleSelectAttendee = async (item: Attendee) => {
@@ -22,12 +30,12 @@ const AttendeesList: React.FC<AttendeesListProps> = (props) => {
           You have selected <b>{item.name}</b>
         </span>
       ),
-      cancelText: 'Cancel',
-      confirmText: 'Confirm'
+      cancelText: "Cancel",
+      confirmText: "Confirm",
     });
     if (result) {
       router.push({
-        pathname: '/pomp/attendee-detail'
+        pathname: "/pomp/attendee-detail",
       });
       setGlobalState((pre) => ({ ...pre, recipient: item }));
     }
@@ -47,8 +55,8 @@ const AttendeesList: React.FC<AttendeesListProps> = (props) => {
               icon={<SmileOutline />}
               title={
                 <p>
-                  To Meet other attendees and mint <b>Proof of Meet Protocol SBT</b> to remember
-                  each other
+                  To Meet other attendees and mint{" "}
+                  <b>Proof of Meet Protocol SBT</b> to remember each other
                 </p>
               }
             />
@@ -60,17 +68,28 @@ const AttendeesList: React.FC<AttendeesListProps> = (props) => {
             </Form>
           </Card>
 
-          <List header="Attendees list" mode="card" style={{ margin: '12px 0px 36px 0px' }}>
-            <div style={{ minHeight: '332px' }}>
+          <List
+            header="Attendees list"
+            mode="card"
+            style={{ margin: "12px 0px 36px 0px" }}
+          >
+            <div style={{ minHeight: "332px" }}>
               {ATTENDEES.filter(
                 (item) =>
                   !searchKey ||
-                  item.name.toLowerCase().trim().includes(searchKey.toLowerCase().trim())
+                  item.name
+                    .toLowerCase()
+                    .trim()
+                    .includes(searchKey.toLowerCase().trim())
               ).map((item) => {
                 return (
                   <List.Item
                     prefix={
-                      <UserContactOutline width={32} height={32} color="var(--adm-color-primary)" />
+                      <UserContactOutline
+                        width={32}
+                        height={32}
+                        color="var(--adm-color-primary)"
+                      />
                     }
                     key={item.email}
                     description={item.role}
