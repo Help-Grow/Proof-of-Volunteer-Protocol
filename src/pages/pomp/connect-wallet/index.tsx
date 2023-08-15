@@ -70,8 +70,8 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   const [walletAddress, setWalletAddress] = useState(recipient?.wallet_address);
 
   const { config } = usePrepareContractWrite({
-    address: CONTRACT_ADDRESS,
-    abi: abiJson,
+    addressOrName: CONTRACT_ADDRESS,
+    contractInterface: abiJson,
     functionName: "mint",
     args: [walletAddress, "1", imageUrl],
   });

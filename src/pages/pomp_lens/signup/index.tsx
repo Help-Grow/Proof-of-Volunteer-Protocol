@@ -53,8 +53,8 @@ export default function Home() {
   }, []);
 
   const { config, error } = usePrepareContractWrite({
-    address: MockProfileAddress,
-    abi: profileAbiJson,
+    addressOrName: MockProfileAddress,
+    contractInterface: profileAbiJson,
     functionName: "proxyCreateProfile",
 
     args: [

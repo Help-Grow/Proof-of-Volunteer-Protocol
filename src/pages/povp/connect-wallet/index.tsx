@@ -124,8 +124,8 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   }, []);
 
   const { config } = usePrepareContractWrite({
-    address: povp_Contract_Address,
-    abi: abiJson,
+    addressOrName: povp_Contract_Address,
+    contractInterface: abiJson,
     functionName: "mint",
     args: [walletAddress, metaData],
   });
