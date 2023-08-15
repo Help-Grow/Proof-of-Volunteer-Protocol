@@ -43,8 +43,8 @@ export default function HomePage() {
    * So when try to retrieve the URI you need to provide both the address and tokenId as argument.
    */
   const { data: tokenUriData } = useContractRead({
-    address: contract,
-    abi: abiJson,
+    addressOrName: contract,
+    contractInterface: abiJson,
     functionName: "_tokenURIs",
     args: [addr, tokenId],
   });
