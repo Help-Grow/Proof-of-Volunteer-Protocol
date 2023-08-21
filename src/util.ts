@@ -40,3 +40,42 @@ export const formatChainAsNum = (chainIdHex: string) => {
 export const formatAddress = (addr: string) => {
   return `${addr.substring(0, 8)}...`;
 };
+
+/**
+ * get POVP protocol raw data
+ * @param imgUrl the upload image url. should be ipfs url or arweave url
+ * @param email the volunteer email
+ */
+export const getPOVPRawData = (imgUrl: string, email: string) => ({
+  description: "Jerry Volunteered at Digital Literacy Help",
+  external_url: "",
+  image: imgUrl,
+  name: "Volunteering Moment",
+  attributes: [
+    {
+      display_type: "date",
+      trait_type: "POVP Date",
+      value: Math.round(Date.now() / 1000),
+    },
+    {
+      trait_type: "Organizer",
+      value: "Help & Grow",
+    },
+    {
+      trait_type: "Event Name",
+      value: "Digital Literacy Help",
+    },
+    {
+      trait_type: "PIC to Claim From",
+      value: "Katrina",
+    },
+    {
+      trait_type: "Volunteer Name",
+      value: "Jerry",
+    },
+    {
+      trait_type: "Volunteer Email",
+      value: email,
+    },
+  ],
+});
