@@ -1,3 +1,6 @@
+import { Web3Storage } from "web3.storage";
+import { Web3StorageApi } from "@/constants";
+
 export const convertBase64 = (file: Blob) =>
   new Promise((resolve, reject) => {
     const fileReader = new FileReader();
@@ -79,3 +82,17 @@ export const getPOVPRawData = (imgUrl: string, email: string) => ({
     },
   ],
 });
+
+export const uploadToIPFS = async (file: Blob) => {
+  try {
+    const client = new Web3Storage({ token: Web3StorageApi });
+    const rootCid = await client.put([file]);
+    const ipfsUrl = `https://${rootCid}.ipfs.w3s.link/${file.name}`;
+    console.log("ipfs upload success, url:", ipfsUrl);
+    return ipfsUrl;
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(err.message);
+    }
+  }
+};

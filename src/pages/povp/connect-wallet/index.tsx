@@ -11,13 +11,21 @@ import { useAccount, useDisconnect } from "wagmi";
 import { useLensLogin } from "@/hooks/useLensLogin";
 import { useRouter } from "next/router";
 import { useGlobalState } from "@/hooks/globalContext";
-import { useActiveProfile, useCreatePost } from "@lens-protocol/react-web";
+import {
+  ImageType,
+  useActiveProfile,
+  useCreatePost,
+} from "@lens-protocol/react-web";
 
 // Enums
-import { ContentFocus, ReferencePolicyType } from "@lens-protocol/react-web";
+import {
+  ContentFocus,
+  ReferencePolicyType,
+  CollectPolicyType,
+} from "@lens-protocol/react-web";
 
 // Utils
-import { getPOVPRawData } from "@/util";
+import { getPOVPRawData, uploadToIPFS } from "@/util";
 import { WalletOptions } from "@/components/walletoptions";
 
 import styles from "@/styles/common.module.css";
@@ -37,7 +45,13 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
     isPending: isPostPending,
   } = useCreatePost({
     publisher: activeProfile!,
-    upload: async () => ipfsImageUrl!,
+    upload: async (data) => {
+      console.log("data from lens: ", data);
+      const buffer = Buffer.from(JSON.stringify(data));
+      const file = new File([buffer], "metadata.json");
+      const ipfsUrl = await uploadToIPFS(file);
+      return ipfsUrl!;
+    },
   });
 
   // maybe will use metamask sdk separately in the future
@@ -55,11 +69,24 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
 
     if (ipfsImageUrl && email) {
       // there is an bug that if the createPost transaction haven't been indexed, then the indexed query call will call infinite times. this should be the hooks error.
+      // 2023.08.26 update again: it's not a bug, lens protocol will auto reject a ipfs url if it's not a valid lens protocol metadata json.
+      // metadata json structure ref: https://docs.lens.xyz/docs/metadata-standards#metadata-structure
+      // createPost type ref: https://lens-protocol.github.io/lens-sdk/types/_lens_protocol_react_web.CreatePostArgs.html
       const res = await createPost({
         content: JSON.stringify(getPOVPRawData(ipfsImageUrl!, email)),
-        contentFocus: ContentFocus.TEXT,
+        // contentFocus: ContentFocus.TEXT,
+        contentFocus: ContentFocus.IMAGE,
+        collect: {
+          type: CollectPolicyType.NO_COLLECT,
+        },
         locale: "en",
         reference: { type: ReferencePolicyType.ANYONE },
+        media: [
+          {
+            url: ipfsImageUrl!,
+            mimeType: ImageType.JPEG,
+          },
+        ],
       });
 
       if (res.isSuccess()) {
