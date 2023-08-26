@@ -14,7 +14,9 @@ import Link from "next/link";
 import { useSetGlobalState } from "@/hooks/globalContext";
 
 // Utils
-import { uploadToIPFS } from "@/util";
+import { uploadToArweave, uploadToIPFS } from "@/util";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
 
 export interface TakePhotoPageProps {}
 
@@ -27,14 +29,25 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
 
   const setGlobalState = useSetGlobalState();
 
+  const { isConnected } = useAccount();
+  const { disconnectAsync } = useDisconnect();
+  const { connectAsync } = useConnect({
+    connector: new InjectedConnector(),
+  });
+
   const handleUpload = async (file: File): Promise<ImageUploadItem> => {
     setShowWarning(false);
     if (AllowedImageTypes.map((t) => "image/" + t).includes(file.type)) {
       console.log("Upload Started");
-      // sample https:/bafybeihm2clcti5ch7y2tke4ocqy6sgmtbe3hcnc3xbn5v4oiiym5vatv4.ipfs.dweb.link/Tom-and-jerry.jpeg
-      const ipfsImageUrl = await uploadToIPFS(file);
-      setGlobalState((pre) => ({ ...pre, ipfsImageUrl }));
-      console.log("Image " + ipfsImageUrl);
+      // const imageUrl = await uploadToIPFS(file);
+      // need to take not that upload to arweave need to connect wallet
+      if (isConnected) {
+        await disconnectAsync();
+      }
+      await connectAsync();
+      const imageUrl = await uploadToArweave(file);
+      setGlobalState((pre) => ({ ...pre, imageUrl }));
+      console.log("Image " + imageUrl);
     } else {
       setShowWarning(true);
     }

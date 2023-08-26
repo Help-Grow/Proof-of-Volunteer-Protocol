@@ -6,10 +6,14 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*.ipfs.w3s.link"
-      }
-    ]
-  }
+        hostname: "*.ipfs.w3s.link",
+      },
+      {
+        protocol: "https",
+        hostname: "arweave.net",
+      },
+    ],
+  },
 };
 
 module.exports = nextConfig;

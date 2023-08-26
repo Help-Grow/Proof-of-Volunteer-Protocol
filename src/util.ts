@@ -1,5 +1,7 @@
 import { Web3Storage } from "web3.storage";
 import { Web3StorageApi } from "@/constants";
+import { WebBundlr } from "@bundlr-network/client";
+import { fetchSigner } from "wagmi/actions";
 
 export const convertBase64 = (file: Blob) =>
   new Promise((resolve, reject) => {
@@ -94,5 +96,82 @@ export const uploadToIPFS = async (file: Blob) => {
     if (err instanceof Error) {
       console.error(err.message);
     }
+  }
+};
+
+/**
+ * Creates a new Bundlr object that will then be used by other
+ * utility functions. This is where you set your node address and currency.
+ *
+ * @returns A reference to a Bundlr object
+ */
+export const getBundlr = async () => {
+  const signer = await fetchSigner();
+  const provider = signer?.provider;
+  // use method injection to add the missing function
+  // @ts-ignore
+  provider.getSigner = () => signer;
+  const bundlr = new WebBundlr(
+    "https://devnet.bundlr.network",
+    "matic",
+    signer?.provider
+  );
+  await bundlr.ready();
+  return bundlr;
+};
+
+const convertFileToBuffer = (file: File): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const blob = new Blob([reader.result as ArrayBuffer]);
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        const buffer = Buffer.from(fileReader.result as ArrayBuffer);
+        resolve(buffer);
+      };
+      fileReader.readAsArrayBuffer(blob);
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+};
+
+/**
+ * Uploads an image to Bundlr.
+ *
+ * @param {*} fileToUpload The file to be uploaded.
+ * @param {*} fileType The mime-type of the file to be uploaded.
+ * @returns
+ */
+export const uploadToArweave = async (fileToUpload: File) => {
+  // Get a refernce to the WebBundlr singleton
+  const bundlr = await getBundlr();
+
+  try {
+    // Convert to a data stream
+    const dataStream = await convertFileToBuffer(fileToUpload);
+    // Get the const to upload
+    const price = await bundlr.getPrice(fileToUpload.size);
+    // Get the amount currently funded for this user on a Bundlr node
+    const balance = await bundlr.getLoadedBalance();
+
+    // Only fund if needed
+    if (price.isGreaterThanOrEqualTo(balance)) {
+      console.log("Funding node.");
+      await bundlr.fund(price);
+    } else {
+      console.log("Funding not needed, balance sufficient.");
+    }
+
+    const tx = await bundlr.upload(dataStream, {
+      tags: [{ name: "Content-Type", value: fileToUpload.type }],
+    });
+
+    console.log(`File uploaded ==> https://arweave.net/${tx.id}`);
+
+    return "https://arweave.net/" + tx.id;
+  } catch (e) {
+    console.log("Error on upload, ", e);
   }
 };

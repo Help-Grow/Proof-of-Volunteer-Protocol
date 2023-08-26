@@ -25,7 +25,7 @@ import {
 } from "@lens-protocol/react-web";
 
 // Utils
-import { getPOVPRawData, uploadToIPFS } from "@/util";
+import { getPOVPRawData, uploadToArweave, uploadToIPFS } from "@/util";
 import { WalletOptions } from "@/components/walletoptions";
 
 import styles from "@/styles/common.module.css";
@@ -37,7 +37,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   const { isConnected: isWAGMIConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const router = useRouter();
-  const { ipfsImageUrl, email } = useGlobalState();
+  const { imageUrl, email } = useGlobalState();
   const { data: activeProfile } = useActiveProfile();
   const {
     execute: createPost,
@@ -49,8 +49,9 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
       console.log("data from lens: ", data);
       const buffer = Buffer.from(JSON.stringify(data));
       const file = new File([buffer], "metadata.json");
-      const ipfsUrl = await uploadToIPFS(file);
-      return ipfsUrl!;
+      // const metaDataUrl = await uploadToIPFS(file);
+      const metaDataUrl = await uploadToArweave(file);
+      return metaDataUrl!;
     },
   });
 
@@ -67,13 +68,13 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
       console.log("Please connect wallet");
     }
 
-    if (ipfsImageUrl && email) {
+    if (imageUrl && email) {
       // there is an bug that if the createPost transaction haven't been indexed, then the indexed query call will call infinite times. this should be the hooks error.
       // 2023.08.26 update again: it's not a bug, lens protocol will auto reject a ipfs url if it's not a valid lens protocol metadata json.
       // metadata json structure ref: https://docs.lens.xyz/docs/metadata-standards#metadata-structure
       // createPost type ref: https://lens-protocol.github.io/lens-sdk/types/_lens_protocol_react_web.CreatePostArgs.html
       const res = await createPost({
-        content: JSON.stringify(getPOVPRawData(ipfsImageUrl!, email)),
+        content: JSON.stringify(getPOVPRawData(imageUrl!, email)),
         // contentFocus: ContentFocus.TEXT,
         contentFocus: ContentFocus.IMAGE,
         collect: {
@@ -83,7 +84,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
         reference: { type: ReferencePolicyType.ANYONE },
         media: [
           {
-            url: ipfsImageUrl!,
+            url: imageUrl!,
             mimeType: ImageType.JPEG,
           },
         ],
@@ -132,9 +133,9 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
               marginBottom: "24px",
             }}
           >
-            {ipfsImageUrl?.length && isConnected && (
+            {imageUrl?.length && isConnected && (
               <Image
-                src={ipfsImageUrl}
+                src={imageUrl}
                 alt="image"
                 width={300}
                 height={400}
