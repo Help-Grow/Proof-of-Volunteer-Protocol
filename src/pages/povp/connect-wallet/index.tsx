@@ -11,11 +11,7 @@ import { useAccount, useDisconnect } from "wagmi";
 import { useLensLogin } from "@/hooks/useLensLogin";
 import { useRouter } from "next/router";
 import { useGlobalState } from "@/hooks/globalContext";
-import {
-  ImageType,
-  useActiveProfile,
-  useCreatePost,
-} from "@lens-protocol/react-web";
+import { useActiveProfile, useCreatePost } from "@lens-protocol/react-web";
 
 // Enums
 import {
@@ -37,7 +33,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
   const { isConnected: isWAGMIConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const router = useRouter();
-  const { imageUrl, email } = useGlobalState();
+  const { imageUrl, email, imageType } = useGlobalState();
   const { data: activeProfile } = useActiveProfile();
   const {
     execute: createPost,
@@ -68,13 +64,13 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
       console.log("Please connect wallet");
     }
 
-    if (imageUrl && email) {
+    if (imageUrl && email && imageType) {
       // there is an bug that if the createPost transaction haven't been indexed, then the indexed query call will call infinite times. this should be the hooks error.
       // 2023.08.26 update again: it's not a bug, lens protocol will auto reject a ipfs url if it's not a valid lens protocol metadata json.
       // metadata json structure ref: https://docs.lens.xyz/docs/metadata-standards#metadata-structure
       // createPost type ref: https://lens-protocol.github.io/lens-sdk/types/_lens_protocol_react_web.CreatePostArgs.html
       const res = await createPost({
-        content: JSON.stringify(getPOVPRawData(imageUrl!, email)),
+        content: JSON.stringify(getPOVPRawData(imageUrl, email)),
         // contentFocus: ContentFocus.TEXT,
         contentFocus: ContentFocus.IMAGE,
         collect: {
@@ -84,8 +80,8 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
         reference: { type: ReferencePolicyType.ANYONE },
         media: [
           {
-            url: imageUrl!,
-            mimeType: ImageType.JPEG,
+            url: imageUrl,
+            mimeType: imageType,
           },
         ],
       });

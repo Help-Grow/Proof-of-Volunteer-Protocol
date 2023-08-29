@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+
+// Components
 import {
   Card,
   Result,
@@ -8,19 +10,24 @@ import {
   Button,
 } from "antd-mobile";
 import { SmileOutline, CameraOutline } from "antd-mobile-icons";
-import styles from "@/styles/common.module.css";
 import Link from "next/link";
 
+// Hooks
 import { useSetGlobalState } from "@/hooks/globalContext";
+
+// Enums
+import { ImageType } from "@lens-protocol/react-web";
 
 // Utils
 import { uploadToArweave, uploadToIPFS } from "@/util";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
+import styles from "@/styles/common.module.css";
+
 export interface TakePhotoPageProps {}
 
-const AllowedImageTypes = ["jpeg", "png", "gif"];
+const AllowedImageTypes = [ImageType.JPEG, ImageType.PNG, ImageType.GIF];
 
 const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
   const [showWarning, setShowWarning] = useState<boolean>(false);
@@ -37,7 +44,7 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
 
   const handleUpload = async (file: File): Promise<ImageUploadItem> => {
     setShowWarning(false);
-    if (AllowedImageTypes.map((t) => "image/" + t).includes(file.type)) {
+    if (AllowedImageTypes.includes(file.type as ImageType)) {
       console.log("Upload Started");
       // const imageUrl = await uploadToIPFS(file);
       // need to take not that upload to arweave need to connect wallet
@@ -46,7 +53,11 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
       }
       await connectAsync();
       const imageUrl = await uploadToArweave(file);
-      setGlobalState((pre) => ({ ...pre, imageUrl }));
+      setGlobalState((pre) => ({
+        ...pre,
+        imageUrl,
+        imageType: file.type as ImageType,
+      }));
       console.log("Image " + imageUrl);
     } else {
       setShowWarning(true);

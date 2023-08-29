@@ -1,7 +1,10 @@
 import { Attendee } from "./attendee";
-import { LensClient } from "@lens-protocol/client";
+// Enums
+import { ImageType } from "@lens-protocol/react-web";
+
 export interface GlobalState {
   recipient?: Attendee;
   email?: string;
   imageUrl?: string;
+  imageType?: ImageType;
 }
