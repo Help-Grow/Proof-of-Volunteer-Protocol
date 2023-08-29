@@ -8,19 +8,27 @@ import {
   ImageUploadItem,
   Tag,
   Button,
+  Toast,
 } from "antd-mobile";
 import { SmileOutline, CameraOutline } from "antd-mobile-icons";
 import Link from "next/link";
 
 // Hooks
 import { useSetGlobalState } from "@/hooks/globalContext";
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useNetwork,
+  useSwitchNetwork,
+} from "wagmi";
 
 // Enums
 import { ImageType } from "@lens-protocol/react-web";
+import { ChainID } from "@/interfaces/chain";
 
 // Utils
 import { uploadToArweave, uploadToIPFS } from "@/util";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
 import styles from "@/styles/common.module.css";
@@ -41,29 +49,57 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
   const { connectAsync } = useConnect({
     connector: new InjectedConnector(),
   });
+  const { chain } = useNetwork();
+  const { switchNetworkAsync } = useSwitchNetwork();
+
+  const handleUploadToIPFS = async (file: File): Promise<string> => {
+    const imageUrl = await uploadToIPFS(file);
+    return imageUrl;
+  };
+
+  const handleUploadToArweave = async (file: File): Promise<string> => {
+    // need to take not that upload to arweave need to connect wallet
+    if (isConnected) {
+      await disconnectAsync();
+    }
+    await connectAsync();
+    if (chain?.id !== ChainID.PolygonMumbai) {
+      await switchNetworkAsync?.(ChainID.PolygonMumbai);
+    }
+    const imageUrl = await uploadToArweave(file);
+    return imageUrl;
+  };
 
   const handleUpload = async (file: File): Promise<ImageUploadItem> => {
     setShowWarning(false);
+    const localUrl = URL.createObjectURL(file);
     if (AllowedImageTypes.includes(file.type as ImageType)) {
-      console.log("Upload Started");
-      // const imageUrl = await uploadToIPFS(file);
-      // need to take not that upload to arweave need to connect wallet
-      if (isConnected) {
-        await disconnectAsync();
+      try {
+        console.log("Upload Started");
+        const imageUrl = await handleUploadToArweave(file);
+        // const imageUrl = await handleUploadToIPFS(file);
+        setGlobalState((pre) => ({
+          ...pre,
+          imageUrl,
+          imageType: file.type as ImageType,
+          localImageUrl: localUrl,
+        }));
+        setFileList([{ url: localUrl }]);
+        console.log("Image " + imageUrl);
+      } catch (err) {
+        console.log(err);
+        setFileList([]);
+        const error = JSON.parse(JSON.stringify(err));
+        Toast.show({
+          content: `Upload failed (Error: ${error.message || error.reason})`,
+          position: "top",
+        });
       }
-      await connectAsync();
-      const imageUrl = await uploadToArweave(file);
-      setGlobalState((pre) => ({
-        ...pre,
-        imageUrl,
-        imageType: file.type as ImageType,
-      }));
-      console.log("Image " + imageUrl);
     } else {
       setShowWarning(true);
     }
     return {
-      url: URL.createObjectURL(file),
+      url: localUrl,
     };
   };
 
@@ -83,14 +119,7 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
                 Next
               </Button>
             </Link>
-          ) : (
-            <></>
-            // <div style={{ textAlign: 'center' }}>
-            //   <Link href="/mint" style={{ fontSize: '18px', textDecorationLine: 'underline' }}>
-            //     Skip first
-            //   </Link>
-            // </div>
-          )}
+          ) : null}
         </Card>
 
         <div
@@ -109,19 +138,6 @@ const TakePhotoPage: React.FC<TakePhotoPageProps> = () => {
             upload={handleUpload}
             maxCount={1}
             style={{ "--cell-size": "240px" }}
-            // onDelete={() =>
-            //   Dialog.confirm({
-            //     content: 'Are you sure to remove this photo?',
-            //     cancelText: 'Cancel',
-            //     confirmText: 'Confirm',
-            //     onConfirm: () => {
-            //       s3client?.deleteObject({
-            //         Bucket: imageObj?.bucket,
-            //         Key: imageObj?.name
-            //       });
-            //     }
-            //   })
-            // }
           >
             <div
               style={{

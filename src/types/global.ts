@@ -6,5 +6,6 @@ export interface GlobalState {
   recipient?: Attendee;
   email?: string;
   imageUrl?: string;
+  localImageUrl?: string;
   imageType?: ImageType;
 }

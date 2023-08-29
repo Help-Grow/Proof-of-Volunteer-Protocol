@@ -3,7 +3,7 @@ import React from "react";
 // Components
 import Image from "next/image";
 import { Web3Button, Web3NetworkSwitch } from "@web3modal/react";
-import { Card, Result, Button, Dialog } from "antd-mobile";
+import { Card, Result, Button, Dialog, Form, TextArea } from "antd-mobile";
 import { SmileOutline } from "antd-mobile-icons";
 
 // Hooks
@@ -29,11 +29,14 @@ import styles from "@/styles/common.module.css";
 export interface ConnectWalletPageProps {}
 
 const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
+  const [form] = Form.useForm();
+  const message = Form.useWatch("message", form);
+
   // wagmi connection
   const { isConnected: isWAGMIConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const router = useRouter();
-  const { imageUrl, email, imageType } = useGlobalState();
+  const { imageUrl, email, imageType, localImageUrl } = useGlobalState();
   const { data: activeProfile } = useActiveProfile();
   const {
     execute: createPost,
@@ -45,8 +48,8 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
       console.log("data from lens: ", data);
       const buffer = Buffer.from(JSON.stringify(data));
       const file = new File([buffer], "metadata.json");
-      // const metaDataUrl = await uploadToIPFS(file);
-      const metaDataUrl = await uploadToArweave(file);
+      const metaDataUrl = await uploadToIPFS(file);
+      // const metaDataUrl = await uploadToArweave(file);
       return metaDataUrl!;
     },
   });
@@ -70,7 +73,8 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
       // metadata json structure ref: https://docs.lens.xyz/docs/metadata-standards#metadata-structure
       // createPost type ref: https://lens-protocol.github.io/lens-sdk/types/_lens_protocol_react_web.CreatePostArgs.html
       const res = await createPost({
-        content: JSON.stringify(getPOVPRawData(imageUrl, email)),
+        // content: JSON.stringify(getPOVPRawData(imageUrl, email)),
+        content: message as string,
         // contentFocus: ContentFocus.TEXT,
         contentFocus: ContentFocus.IMAGE,
         collect: {
@@ -97,6 +101,8 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
       }
     }
   };
+
+  console.log(message);
 
   return (
     <div className={styles.app}>
@@ -125,18 +131,31 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
           <div
             style={{
               display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               justifyContent: "center",
               marginBottom: "24px",
             }}
           >
-            {imageUrl?.length && isConnected && (
-              <Image
-                src={imageUrl}
-                alt="image"
-                width={300}
-                height={400}
-                style={{ maxHeight: "300px", maxWidth: "100%" }}
-              />
+            {localImageUrl && imageUrl && isConnected && (
+              <>
+                <Image
+                  src={localImageUrl}
+                  alt="image"
+                  width={300}
+                  height={400}
+                  style={{ maxHeight: "300px", maxWidth: "100%" }}
+                />
+                <Form form={form}>
+                  <Form.Item
+                    name="message"
+                    label="message"
+                    rules={[{ required: true }]}
+                  >
+                    <TextArea placeholder="Please enter your volunteer message" />
+                  </Form.Item>
+                </Form>
+              </>
             )}
           </div>
 
@@ -149,7 +168,7 @@ const ConnectWalletPage: React.FC<ConnectWalletPageProps> = (props) => {
             ></Web3Button>
           </div>
 
-          {isConnected && !isLoginPending && (
+          {isConnected && !isLoginPending && message && (
             <>
               <Button
                 style={{ margin: "12px 0px" }}

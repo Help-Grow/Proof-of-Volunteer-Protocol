@@ -86,17 +86,11 @@ export const getPOVPRawData = (imgUrl: string, email: string) => ({
 });
 
 export const uploadToIPFS = async (file: Blob) => {
-  try {
-    const client = new Web3Storage({ token: Web3StorageApi });
-    const rootCid = await client.put([file]);
-    const ipfsUrl = `https://${rootCid}.ipfs.w3s.link/${file.name}`;
-    console.log("ipfs upload success, url:", ipfsUrl);
-    return ipfsUrl;
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error(err.message);
-    }
-  }
+  const client = new Web3Storage({ token: Web3StorageApi });
+  const rootCid = await client.put([file]);
+  const ipfsUrl = `https://${rootCid}.ipfs.w3s.link/${file.name}`;
+  console.log("ipfs upload success, url:", ipfsUrl);
+  return ipfsUrl;
 };
 
 /**
@@ -148,30 +142,31 @@ export const uploadToArweave = async (fileToUpload: File) => {
   // Get a refernce to the WebBundlr singleton
   const bundlr = await getBundlr();
 
-  try {
-    // Convert to a data stream
-    const dataStream = await convertFileToBuffer(fileToUpload);
-    // Get the const to upload
-    const price = await bundlr.getPrice(fileToUpload.size);
-    // Get the amount currently funded for this user on a Bundlr node
-    const balance = await bundlr.getLoadedBalance();
+  // Convert to a data stream
+  const dataStream = await convertFileToBuffer(fileToUpload);
+  // Get the const to upload
+  const price = await bundlr.getPrice(fileToUpload.size);
+  // Get the amount currently funded for this user on a Bundlr node
+  const balance = await bundlr.getLoadedBalance();
 
-    // Only fund if needed
-    if (price.isGreaterThanOrEqualTo(balance)) {
-      console.log("Funding node.");
-      await bundlr.fund(price);
-    } else {
-      console.log("Funding not needed, balance sufficient.");
-    }
+  console.log("price", price.toNumber());
+  console.log("balance", balance.toNumber());
 
-    const tx = await bundlr.upload(dataStream, {
-      tags: [{ name: "Content-Type", value: fileToUpload.type }],
-    });
+  // Only fund if needed
+  if (price.isGreaterThanOrEqualTo(balance)) {
+    console.log("Funding node.");
+    const res = await bundlr.fund(price);
 
-    console.log(`File uploaded ==> https://arweave.net/${tx.id}`);
-
-    return "https://arweave.net/" + tx.id;
-  } catch (e) {
-    console.log("Error on upload, ", e);
+    console.log("fund res", res);
+  } else {
+    console.log("Funding not needed, balance sufficient.");
   }
+
+  const tx = await bundlr.upload(dataStream, {
+    tags: [{ name: "Content-Type", value: fileToUpload.type }],
+  });
+
+  console.log(`File uploaded ==> https://arweave.net/${tx.id}`);
+
+  return "https://arweave.net/" + tx.id;
 };
